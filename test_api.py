@@ -5,7 +5,7 @@ from PIL import Image
 import io
 
 # Configura aquí tu dominio de EasyPanel
-BASE_URL = "https://tu-dominio.easypanel.host"  # Reemplaza con tu dominio real
+BASE_URL = "https://face-recognition-insight-face.3150ox.easypanel.host"
 
 def create_test_image():
     """Crea una imagen de prueba simple"""

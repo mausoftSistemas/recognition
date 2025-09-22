@@ -14,10 +14,10 @@ services:
         pip install --no-cache-dir -r requirements.txt &&
         mkdir -p ~/.insightface/models &&
         echo '✅ Iniciando servidor...' &&
-        python app.py
+        gunicorn --bind 0.0.0.0:5000 --workers 1 --timeout 120 app:app
       "
-    expose:
-      - "5000"
+    ports:
+      - "5000:5000"
     environment:
       PORT: 5000
       PYTHONUNBUFFERED: "1"
