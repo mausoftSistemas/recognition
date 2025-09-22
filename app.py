@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-import insightface
 import cv2
 import numpy as np
 import base64
@@ -15,11 +14,14 @@ model = None
 def init_model():
     global model
     try:
+        import insightface
         model = insightface.app.FaceAnalysis(providers=['CPUExecutionProvider'])
         model.prepare(ctx_id=0, det_size=(640, 640))
         print("Modelo InsightFace inicializado correctamente")
+        return True
     except Exception as e:
         print(f"Error inicializando modelo: {e}")
+        return False
 
 def base64_to_image(base64_string):
     """Convierte base64 a imagen numpy array"""
@@ -34,11 +36,18 @@ def image_to_base64(image):
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "healthy", "model_loaded": model is not None})
+    return jsonify({
+        "status": "healthy", 
+        "model_loaded": model is not None,
+        "message": "InsightFace API is running"
+    })
 
 @app.route('/detect', methods=['POST'])
 def detect_faces():
     try:
+        if model is None:
+            return jsonify({"error": "Model not initialized"}), 503
+            
         data = request.get_json()
         
         if 'image' not in data:
@@ -73,6 +82,9 @@ def detect_faces():
 @app.route('/compare', methods=['POST'])
 def compare_faces():
     try:
+        if model is None:
+            return jsonify({"error": "Model not initialized"}), 503
+            
         data = request.get_json()
         
         if 'image1' not in data or 'image2' not in data:
@@ -104,6 +116,10 @@ def compare_faces():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    init_model()
+    print("Iniciando aplicación...")
+    model_loaded = init_model()
+    if not model_loaded:
+        print("⚠️  Advertencia: El modelo no se pudo cargar, pero la aplicación continuará")
+    
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

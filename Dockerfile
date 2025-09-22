@@ -1,34 +1,15 @@
-FROM python:3.9-slim
+FROM python:3.9
 
-# Instalar dependencias del sistema necesarias para OpenCV e InsightFace
+# Instalar dependencias básicas del sistema
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    pkg-config \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libgtk-3-0 \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    libv4l-dev \
-    libxvidcore-dev \
-    libx264-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libtiff-dev \
-    libatlas-base-dev \
-    gfortran \
-    libhdf5-dev \
-    libprotobuf-dev \
-    protobuf-compiler \
-    libgoogle-glog-dev \
-    libgflags-dev \
-    libgtest-dev \
-    libeigen3-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Crear directorio de trabajo
