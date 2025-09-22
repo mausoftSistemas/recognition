@@ -84,7 +84,18 @@ Cuando te pida la URL, ingresa tu dominio de EasyPanel.
 
 ## Troubleshooting
 
+### Error "429 Too Many Requests" de Docker Hub
+
+Si ves este error, es un problema temporal de rate limiting de Docker Hub. Soluciones:
+
+1. **Espera unos minutos** y vuelve a intentar el despliegue
+2. **Usa el Dockerfile alternativo**: Renombra `Dockerfile.simple` a `Dockerfile`
+3. **Configura Docker Hub credentials** en EasyPanel si tienes cuenta
+
+### Otros problemas
+
 Si el servicio no inicia:
 1. Revisa los logs en EasyPanel
 2. Verifica que el health check esté pasando
 3. Asegúrate de que el puerto 5000 esté configurado correctamente
+4. El primer despliegue puede tardar 5-10 minutos descargando modelos
