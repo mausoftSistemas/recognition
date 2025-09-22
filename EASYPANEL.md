@@ -86,13 +86,30 @@ Cuando te pida la URL, ingresa tu dominio de EasyPanel.
 
 ### Error "429 Too Many Requests" de Docker Hub
 
-✅ **SOLUCIONADO**: El proyecto ahora usa `debian:bullseye-slim` e instala todo en runtime, evitando completamente el rate limiting de Docker Hub.
+✅ **SOLUCIONADO**: El proyecto ahora usa GitHub Container Registry (`ghcr.io`) para evitar el rate limiting de Docker Hub.
 
-El nuevo `docker-compose.yml`:
-- Usa imagen Debian (más estable)
+**Configuración actual:**
+- Usa `ghcr.io/linuxserver/baseimage-ubuntu:focal`
 - Instala Python y dependencias en runtime
-- Evita problemas de build
+- Sin límites de descarga
 - Primer inicio toma ~5 minutos (instalación completa)
+
+**Si aún tienes problemas, alternativas disponibles:**
+
+1. **Quay.io**: Copia el contenido de `docker-compose.quay.yml` a `docker-compose.yml`
+2. **GitLab Registry**: Copia el contenido de `docker-compose.alpine.yml` a `docker-compose.yml`
+
+**Para cambiar la configuración:**
+```bash
+# Opción 1: GitHub Container Registry (actual)
+cp docker-compose.yml docker-compose.yml
+
+# Opción 2: Quay.io
+cp docker-compose.quay.yml docker-compose.yml
+
+# Opción 3: GitLab Registry  
+cp docker-compose.alpine.yml docker-compose.yml
+```
 
 ### Otros problemas
 

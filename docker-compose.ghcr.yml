@@ -1,6 +1,6 @@
 services:
   insightface-api:
-    # Usar GitHub Container Registry para evitar rate limiting de Docker Hub
+    # Usar GitHub Container Registry en lugar de Docker Hub
     image: ghcr.io/linuxserver/baseimage-ubuntu:focal
     working_dir: /app
     command: |
