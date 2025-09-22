@@ -4,8 +4,8 @@ import json
 from PIL import Image
 import io
 
-# Configura aquí tu dominio de Coolify
-BASE_URL = "https://tu-dominio-coolify.com"  # Reemplaza con tu dominio real
+# Configura aquí tu dominio de EasyPanel
+BASE_URL = "https://tu-dominio.easypanel.host"  # Reemplaza con tu dominio real
 
 def create_test_image():
     """Crea una imagen de prueba simple"""
@@ -124,8 +124,8 @@ def main():
     print("3. Ajusta las rutas de las imágenes")
 
 if __name__ == "__main__":
-    # ⚠️  IMPORTANTE: Reemplaza esta URL con tu dominio real de Coolify
-    BASE_URL = input("Ingresa tu dominio de Coolify (ej: https://tu-app.coolify.com): ").strip()
+    # ⚠️  IMPORTANTE: Reemplaza esta URL con tu dominio real de EasyPanel
+    BASE_URL = input("Ingresa tu dominio de EasyPanel (ej: https://tu-app.easypanel.host): ").strip()
     
     if not BASE_URL:
         print("❌ Debes ingresar la URL de tu aplicación")

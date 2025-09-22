@@ -71,12 +71,16 @@ docker build -t insightface-api .
 docker run -p 5000:5000 insightface-api
 ```
 
-## Despliegue en Coolify
+## Despliegue en EasyPanel
 
-1. Conecta tu repositorio a Coolify
-2. Configura el proyecto como "Docker Compose"
-3. Coolify detectará automáticamente el `docker-compose.yml`
-4. Despliega y listo
+1. Crea un nuevo proyecto en EasyPanel
+2. Agrega un servicio tipo "App" desde GitHub
+3. Conecta este repositorio: `https://github.com/mausoftSistemas/recognition.git`
+4. EasyPanel detectará automáticamente el `docker-compose.yml`
+5. Configura el puerto interno como 5000
+6. Despliega y listo
+
+Ver [EASYPANEL.md](EASYPANEL.md) para instrucciones detalladas.
 
 ## Variables de Entorno
 
