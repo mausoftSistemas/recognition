@@ -1,36 +1,48 @@
+# Configuración alternativa para EasyPanel
+# Usar esta configuración si tienes problemas con Docker Hub rate limiting
+
 services:
   insightface-api:
+    # Usar imagen de Debian que es más estable
     image: debian:bullseye-slim
     working_dir: /app
+    
+    # Instalar todo en runtime para evitar problemas de build
     command: |
       bash -c "
-        echo '🚀 Iniciando instalación de InsightFace API...' &&
+        echo '🚀 Iniciando instalación...' &&
         apt-get update &&
         apt-get install -y python3 python3-pip python3-dev libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libgl1-mesa-glx wget curl &&
         ln -sf /usr/bin/python3 /usr/bin/python &&
         ln -sf /usr/bin/pip3 /usr/bin/pip &&
         echo '📦 Instalando dependencias Python...' &&
-        pip install --no-cache-dir -r requirements.txt &&
+        pip install --no-cache-dir Flask==2.3.3 opencv-python-headless==4.8.1.78 numpy==1.24.3 Pillow==10.0.1 onnxruntime==1.16.0 gunicorn==21.2.0 insightface==0.7.3 &&
         mkdir -p ~/.insightface/models &&
         echo '✅ Iniciando servidor...' &&
         python app.py
       "
+    
     expose:
       - "5000"
+    
     environment:
       PORT: 5000
       PYTHONUNBUFFERED: "1"
       DEBIAN_FRONTEND: noninteractive
+    
     volumes:
       - .:/app
       - models_data:/root/.insightface/models
+    
     restart: unless-stopped
+    
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 300s
+      start_period: 300s  # 5 minutos para la primera instalación
 
 volumes:
   models_data:
+    driver: local

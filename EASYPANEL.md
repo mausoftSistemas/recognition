@@ -86,11 +86,13 @@ Cuando te pida la URL, ingresa tu dominio de EasyPanel.
 
 ### Error "429 Too Many Requests" de Docker Hub
 
-Si ves este error, es un problema temporal de rate limiting de Docker Hub. Soluciones:
+✅ **SOLUCIONADO**: El proyecto ahora usa `debian:bullseye-slim` e instala todo en runtime, evitando completamente el rate limiting de Docker Hub.
 
-1. **Espera unos minutos** y vuelve a intentar el despliegue
-2. **Usa el Dockerfile alternativo**: Renombra `Dockerfile.simple` a `Dockerfile`
-3. **Configura Docker Hub credentials** en EasyPanel si tienes cuenta
+El nuevo `docker-compose.yml`:
+- Usa imagen Debian (más estable)
+- Instala Python y dependencias en runtime
+- Evita problemas de build
+- Primer inicio toma ~5 minutos (instalación completa)
 
 ### Otros problemas
 

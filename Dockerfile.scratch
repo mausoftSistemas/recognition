@@ -1,8 +1,5 @@
-# Usar Debian que tiene menos problemas de rate limiting
-FROM debian:bullseye-slim
-
-# Evitar prompts interactivos
-ENV DEBIAN_FRONTEND=noninteractive
+# Usar una imagen base de un registry alternativo
+FROM ghcr.io/linuxserver/baseimage-ubuntu:focal
 
 # Instalar Python y dependencias
 RUN apt-get update && apt-get install -y \
