@@ -10,7 +10,119 @@ services:
       ln -sf /usr/bin/pip3 /usr/bin/pip &&
       pip install --no-cache-dir Flask==2.3.3 opencv-python-headless==4.8.1.78 numpy==1.24.3 Pillow==10.0.1 onnxruntime==1.16.0 gunicorn==21.2.0 insightface==0.7.3 &&
       mkdir -p ~/.insightface/models &&
-      gunicorn --bind 0.0.0.0:5000 --workers 1 --timeout 120 app:app
+      cat > app.py << 'EOF'
+from flask import Flask, request, jsonify
+import cv2
+import numpy as np
+import base64
+from io import BytesIO
+from PIL import Image
+import os
+
+app = Flask(__name__)
+model = None
+
+def init_model():
+    global model
+    try:
+        import insightface
+        model = insightface.app.FaceAnalysis(providers=['CPUExecutionProvider'])
+        model.prepare(ctx_id=0, det_size=(640, 640))
+        print('Modelo InsightFace inicializado correctamente')
+        return True
+    except Exception as e:
+        print(f'Error inicializando modelo: {e}')
+        return False
+
+def base64_to_image(base64_string):
+    image_data = base64.b64decode(base64_string)
+    image = Image.open(BytesIO(image_data))
+    return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'healthy', 
+        'model_loaded': model is not None,
+        'message': 'InsightFace API is running'
+    })
+
+@app.route('/detect', methods=['POST'])
+def detect_faces():
+    try:
+        if model is None:
+            return jsonify({'error': 'Model not initialized'}), 503
+            
+        data = request.get_json()
+        if 'image' not in data:
+            return jsonify({'error': 'No image provided'}), 400
+        
+        image = base64_to_image(data['image'])
+        faces = model.get(image)
+        
+        results = []
+        for face in faces:
+            result = {
+                'bbox': face.bbox.tolist(),
+                'confidence': float(face.det_score),
+                'landmarks': face.kps.tolist(),
+                'age': int(face.age) if hasattr(face, 'age') else None,
+                'gender': int(face.gender) if hasattr(face, 'gender') else None,
+                'embedding': face.embedding.tolist() if hasattr(face, 'embedding') else None
+            }
+            results.append(result)
+        
+        return jsonify({
+            'faces_detected': len(results),
+            'faces': results
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/compare', methods=['POST'])
+def compare_faces():
+    try:
+        if model is None:
+            return jsonify({'error': 'Model not initialized'}), 503
+            
+        data = request.get_json()
+        if 'image1' not in data or 'image2' not in data:
+            return jsonify({'error': 'Two images required'}), 400
+        
+        img1 = base64_to_image(data['image1'])
+        img2 = base64_to_image(data['image2'])
+        
+        faces1 = model.get(img1)
+        faces2 = model.get(img2)
+        
+        if len(faces1) == 0 or len(faces2) == 0:
+            return jsonify({'error': 'No faces detected in one or both images'}), 400
+        
+        embedding1 = faces1[0].embedding
+        embedding2 = faces2[0].embedding
+        
+        similarity = np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
+        
+        return jsonify({
+            'similarity': float(similarity),
+            'is_same_person': similarity > 0.6
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    print('Iniciando aplicación...')
+    model_loaded = init_model()
+    if not model_loaded:
+        print('Advertencia: El modelo no se pudo cargar, pero la aplicación continuará')
+    
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
+EOF
+      echo 'Iniciando aplicación Flask...' &&
+      python app.py
       "
     expose:
       - "5000"
@@ -18,7 +130,6 @@ services:
       - PORT=5000
       - PYTHONUNBUFFERED=1
     volumes:
-      - .:/app
       - models_data:/root/.insightface/models
     restart: unless-stopped
 
